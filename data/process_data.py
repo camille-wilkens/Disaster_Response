@@ -10,8 +10,9 @@ def load_data(messages_filepath, categories_filepath):
     """Load and merge csv files into a dataframe 
     
     Args:
-        messages_filepath: File path to the messages file (csv)
-        categories_filepath: File path to the categories file (csv)
+        messages_filepath: Filepath to the messages file 
+        
+        categories_filepath: Filepath to the categories file  
         
     Returns: 
         A merged dataset
@@ -29,17 +30,28 @@ def load_data(messages_filepath, categories_filepath):
 
 
 def clean_data(df):
+    """Cleans data in the DataFrame
+    
+    Args:
+        df: dataframe with merged messages and categories data
+   
+    Returns:
+        df: cleaned  Dataframe
+    """ 
     
     #Split categories into separate category columns.
     categories = df.categories.str.split(';', expand=True)  
     row = categories.iloc[0]
     category_colnames = row.apply(lambda x: x.split('-')[0]) 
     
+    # rename the columns of categories
+    categories.columns = category_colnames
+    
     #Convert category values to just numbers 0 or 1.
     for column in categories:
-    categories[column] = categories[column].str[-1:]
-    # convert column from string to numeric
-    categories[column] = categories[column].astype(int)
+        categories[column] = categories[column].str[-1:]
+        # convert column from string to numeric
+        categories[column] = categories[column].astype(int)
     
     #Replace categories column in df with new category columns.
     df.drop(columns='categories', axis=1, inplace=True)
@@ -47,11 +59,22 @@ def clean_data(df):
     
     #Remove duplicates
     df.drop_duplicates(inplace=True)
+    
+    #Remove rows that contain 2 in the Related Category 
+    df = df[df['related'] != 2]
     return df
 
 
 def save_data(df, database_filename):
-    pass  
+    """Saves Data into Database
+    
+    Args:
+        df: cleaned dataframe
+        database_filename: database file name
+
+    """ 
+    engine = create_engine('sqlite:///' + database_filename)
+    df.to_sql('Disasters', engine, if_exists='replace',index=False)
 
 
 def main():
