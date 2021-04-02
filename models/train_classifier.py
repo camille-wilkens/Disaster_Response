@@ -1,26 +1,133 @@
 import sys
 
+import nltk
+#import numpy as np
+
+from nltk.tokenize import word_tokenize
+from nltk.stem import WordNetLemmatizer
+from nltk.corpus import stopwords
+from nltk.stem.porter import PorterStemmer
+
+from sqlalchemy import create_engine
+import pandas as pd
+import re
+
+from sklearn.multioutput import MultiOutputClassifier
+from sklearn.pipeline import Pipeline
+from sklearn.ensemble import RandomForestClassifier
+
+from sklearn.model_selection import train_test_split, GridSearchCV
+from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
+from sklearn.metrics import classification_report
+
+
+import pickle
+
+nltk.download(['punkt', 'wordnet','stopwords'])
 
 def load_data(database_filepath):
-    pass
+    """Load Database
+    
+    Args:
+        database_filepath: Path to Database file
+        
+    Returns:
+        X: Messages Dataframe
+        y: Category Dataframe
+        category_names: List of the category names
+    """ 
+    
+    engine = create_engine('sqlite:///'+ database_filepath)
+    df = pd.read_sql_table('Disasters', engine)
 
+    # create X dataframe with Message values
+    X = df['message'].values
+    #create y dataframe with category values
+    y = df.iloc[:,4:]
+    #get category names
+    category_names = y.columns
+    
+    return X,y,category_names
 
 def tokenize(text):
-    pass
+    """Tokenize Text
+    
+    Args:
+        text: text 
+        
+    Returns:
+        cleaned_tokens: tokens
+
+    """ 
+    # Normalize text
+    text = re.sub(r"[^a-zA-Z0-9]", " ", text.lower())
+    
+    stop_words = stopwords.words("english")
+    stemmer = PorterStemmer()
+    
+    #tokenize
+    words = word_tokenize(text)
+    
+    #stemmed
+    stemmed = [stemmer.stem(word) for word in words if word not in stop_words]
+    
+    #lemmatizing
+    cleaned_tokens = [WordNetLemmatizer().lemmatize(w) for w in stemmed if w not in stop_words]
+   
+    return cleaned_tokens
 
 
 def build_model():
-    pass
+    
+    """ Build model using a Pipeline and GridSearchCV
+    
+    Returns:
+        cv: GridSearchCV 
+    """ 
+    
+    pipeline = Pipeline([
+        ('vect', CountVectorizer(tokenizer=tokenize)),
+        ('tfidf', TfidfTransformer()),
+        ('clf', MultiOutputClassifier(RandomForestClassifier()))
+        
+    ])
 
+    parameters =  {'clf__estimator__n_estimators': [10,20,50] ,
+              
+              'clf__estimator__min_samples_leaf':[2, 5, 10]
+              }
 
-def evaluate_model(model, X_test, Y_test, category_names):
-    pass
+    cv =  GridSearchCV(pipeline, parameters)
+    return cv
+
+def evaluate_model(model, X_test, y_test, category_names):
+    """ Evaluate Model
+    
+    Args:
+        model: Model
+        X_test: Messages Test data
+        Y_test: Category Test data 
+        category_names: Category Names
+    """ 
+
+    y_pred = model.predict(X_test)
+    
+    for i in range(y_test.shape[1]):
+        report = classification_report(y_test.iloc[:,i].values, y_pred[:,i])
+        print("{}: \n".format(category_names[i]))
+        print(report)
 
 
 def save_model(model, model_filepath):
-    pass
 
-
+    """ Save Model in Pickle formate
+    Args:
+        model: model
+        model_filepath: Model Filepath
+    """ 
+    pickle.dump(model, open(model_filepath, 'wb'))
+  
+    
 def main():
     if len(sys.argv) == 3:
         database_filepath, model_filepath = sys.argv[1:]
