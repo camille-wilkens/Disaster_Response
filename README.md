@@ -77,5 +77,5 @@ Run the following commands in the project's root directory to set up your databa
 
 ## Licensing, Authors, Acknowledgements<a name="licensing"></a>
 
-The dataset used in this analysis was created by [Figure Eight](https://appen.com/) and other components of this project were made available from [Udacity](udacity.com).
+The dataset used in this analysis was created by [Figure Eight](https://appen.com/) and other components of this project were made available from [Udacity](https://www.udacity.com).
 
