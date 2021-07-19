@@ -59,8 +59,6 @@ Created data visualizations using Plotly in the web app to display
 
 ## Instructions <a name="instructions"></a>
 
-Run the following commands in the project's root directory to set up your database and model.
-
 1. Run the following commands in the project's root directory to set up your database and model.
 
     - To run ETL pipeline that cleans data and stores in database
