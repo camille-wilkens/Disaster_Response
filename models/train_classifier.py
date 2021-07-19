@@ -16,6 +16,7 @@ from sklearn.multioutput import MultiOutputClassifier
 from sklearn.pipeline import Pipeline
 from sklearn.ensemble import RandomForestClassifier
 
+
 from sklearn.model_selection import train_test_split, GridSearchCV
 from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
 from sklearn.metrics import classification_report
@@ -40,11 +41,13 @@ def load_data(database_filepath):
     engine = create_engine('sqlite:///'+ database_filepath)
     df = pd.read_sql_table('Disasters', engine)
 
-    # create X dataframe with Message values
+    # create X dataframe with message values
     X = df['message'].values
+    
     #create y dataframe with category values
     y = df.iloc[:,4:]
-    #get category names
+    
+
     category_names = y.columns
     
     return X,y,category_names
