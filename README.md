@@ -43,7 +43,7 @@ This python script:
 - Stores this data in a SQLite database - DisasterResponse.db
 
 2. ML Pipeline
-models/train_classifier.py 
+    models/train_classifier.py 
 
 This python script:
 - Loads data from the SQLite database (DisasterResponse.db) created in the etl pipeline
@@ -77,5 +77,5 @@ Run the following commands in the project's root directory to set up your databa
 
 ## Licensing, Authors, Acknowledgements<a name="licensing"></a>
 
-The dataset used in this analysis was created by Figure Eight(https://appen.com/) and other components of this project were made available from Udacity(udacity.com).
+The dataset used in this analysis was created by [Figure Eight](https://appen.com/) and other components of this project were made available from [Udacity](udacity.com).
 
